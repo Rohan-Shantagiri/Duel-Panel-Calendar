@@ -1,0 +1,136 @@
+<div class="calendar-container">
+  <div>
+      <button (click)="toggleMode()" class="btn btn-primary mt-3">
+          Switch to {{ mode === 'basic' ? 'Advanced' : 'Basic' }} Mode
+      </button>
+  </div>
+
+  <div *ngIf="mode === 'basic'" class="form-group">
+      <label for="start-date">Start Date:</label>
+      <input type="date" id="start-date" [(ngModel)]="startDate" (change)="onDateChange($event, 'start')">
+  </div>
+  
+  <div *ngIf="mode === 'basic'" class="form-group">
+      <label for="end-date">End Date:</label>
+      <input type="date" id="end-date" [(ngModel)]="endDate" (change)="onDateChange($event, 'end')">
+  </div>
+
+  <div *ngIf="mode === 'advanced'" class="advanced-options">
+      <h3>Advanced Options</h3>
+      <div>
+        <label>
+            <input type="checkbox" [(ngModel)]="excludeWeekends"> Exclude Weekends
+        </label>
+    </div>
+
+      <!-- <div>
+          <label>Exclude Specific Days:</label>
+          <select multiple [(ngModel)]="customExcludedDays" id="exclude-days">
+              <option *ngFor="let day of daysOfWeek" [value]="day.value">
+                  {{ day.label }}
+              </option>
+          </select>
+      </div> -->
+
+      <label for="max-days">Maximum Days Between Start and End:</label>
+      <input type="number" id="max-days" [(ngModel)]="maxDaysBetween" placeholder="e.g., 30">
+
+      <div class="calendar-wrapper">
+        <!-- Start Date Calendar -->
+        <div class="calendar">
+          <h3>Start Date Calendar</h3>
+          <div class="calendar-header">
+            <button (click)="prevMonth('start')">&lt;</button>
+            <span>{{ currentMonthStart | date: 'MMMM y' }}</span>
+            <button (click)="nextMonth('start')">&gt;</button>
+          </div>
+          <div *ngIf = "excludeWeekends == false">
+            <div class="week-days-grid">
+              <div *ngFor="let day of weekDays">
+                {{day}}
+              </div>
+            </div>
+            <div class="days-grid">
+              <div *ngFor="let day of getDaysInMonth(currentMonthStart); let i = index" 
+                   (click)="selectDate('start', day)" 
+                   [ngClass]="{
+                      'selected': startDate === getFormattedDate(currentMonthStart.getFullYear(), currentMonthStart.getMonth(), day),
+                      'in-range': isInRange(day, currentMonthStart, 'start')
+                    }">
+                    <div *ngIf="day != 0">{{ day }}</div>
+              </div>
+            </div>
+          </div>
+          <div *ngIf = "excludeWeekends == true">
+            <div class="week-days-grid-weekday">
+              <div *ngFor="let day of weekDayswithoutWeekend">
+                {{day}}
+              </div>
+            </div>
+            <div class="days-grid-weekday">
+              <div *ngFor="let day of getDaysInMonth(currentMonthStart); let i = index" 
+                   (click)="selectDate('start', day)" 
+                   [ngClass]="{
+                      'selected': startDate === getFormattedDate(currentMonthStart.getFullYear(), currentMonthStart.getMonth(), day),
+                      'in-range': isInRange(day, currentMonthStart, 'start')
+                    }">
+                    <div *ngIf="day != 0">{{ day }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+  
+        <!-- End Date Calendar -->
+        <div class="calendar">
+            <h3>End Date Calendar</h3>
+            <div class="calendar-header">
+                <button (click)="prevMonth('end')">&lt;</button>
+                <span>{{ currentMonthEnd | date: 'MMMM y' }}</span>
+                <button (click)="nextMonth('end')">&gt;</button>
+            </div>
+            <div *ngIf = "excludeWeekends == false">
+              <div class="week-days-grid">
+                <div *ngFor="let day of weekDays">
+                  {{day}}
+                </div>
+              </div>
+              <div class="days-grid">
+                  <div *ngFor="let day of getDaysInMonth(currentMonthEnd)" 
+                  (click)="selectDate('end', day)" 
+                       [ngClass]="{
+                          'selected': endDate === getFormattedDate(currentMonthEnd.getFullYear(), currentMonthEnd.getMonth(), day),
+                          'in-range': isInRange(day, currentMonthEnd, 'end')
+                      }">
+                      <div *ngIf="day != 0">{{ day }}</div>
+                  </div>
+              </div>
+            </div>
+            <div *ngIf = "excludeWeekends == true">
+              <div class="week-days-grid-weekday">
+                <div *ngFor="let day of weekDayswithoutWeekend">
+                  {{day}}
+                </div>
+              </div>
+              <div class="days-grid-weekday">
+                  <div *ngFor="let day of getDaysInMonth(currentMonthEnd)"
+                  (click)="selectDate('end', day)" 
+                       [ngClass]="{
+                          'selected': endDate === getFormattedDate(currentMonthEnd.getFullYear(), currentMonthEnd.getMonth(), day),
+                          'in-range': isInRange(day, currentMonthEnd, 'end')
+                      }">
+                      <div *ngIf="day != 0">{{ day }}</div>
+                  </div>
+              </div>
+            </div>
+        </div>
+    </div>
+  </div>
+
+  <div *ngIf="isEndDateInvalid()">
+    <p class="error">End date cannot be earlier than the start date!</p>
+  </div>  
+
+  <div *ngIf="startDate && endDate">
+    <h1 >Selected Range : {{dateRange()}}</h1>
+  </div>
+</div>
